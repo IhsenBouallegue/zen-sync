@@ -24,9 +24,16 @@ jobs:
     - name: Build executables for all platforms
       run: bun run build:exe:all
 
-    - name: Upload release assets
+    - name: Get current date
+      id: date
+      run: echo "date=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
+    - name: Create release
       uses: softprops/action-gh-release@v1
       with:
+        tag_name: "v${{ steps.date.outputs.date }}"
+        name: "Release ${{ steps.date.outputs.date }}"
         files: dist/*
+        generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
