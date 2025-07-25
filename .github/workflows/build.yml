@@ -27,6 +27,9 @@ jobs:
     - name: Build executables for all platforms
       run: bun run build:exe:all
 
+    - name: Fix file permissions
+      run: chmod 755 dist/*
+
     - name: Get package version
       id: version
       run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
