@@ -3,6 +3,7 @@ import path from "node:path";
 import chalk from "chalk";
 import fg from "fast-glob";
 import { SYNC_CATEGORIES } from "./constants.js";
+import { logger } from './logger.js';
 
 export async function backupPath(
   src: string,
@@ -13,6 +14,13 @@ export async function backupPath(
   selectedCategories?: string[],
 ): Promise<number> {
   console.log(chalk.bold(`\nBacking up:`), src, chalk.bold(`→`), dest);
+  logger.verbose(`Backup operation details:`);
+  logger.verbose(`  Source: ${src}`);
+  logger.verbose(`  Destination: ${dest}`);
+  logger.verbose(`  Dry run: ${dryRun}`);
+  logger.verbose(`  Cleanup: ${cleanup}`);
+  logger.verbose(`  Exclusions: ${exclude.join(', ')}`);
+  
   if (!dryRun) await mkdir(dest, { recursive: true });
 
   // Build include patterns from selected categories
@@ -21,6 +29,8 @@ export async function backupPath(
         (category) => (SYNC_CATEGORIES as any)[category] || [],
       )
     : ["**/*"]; // If no categories selected, include everything
+
+  logger.verbose(`Include patterns: ${includePatterns.join(', ')}`);
 
   console.log(
     chalk.blue(

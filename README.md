@@ -21,6 +21,9 @@ bun install
 
 # Run the interactive tool
 bun start
+
+# Enable verbose logging for debugging
+ZEN_SYNC_LOG_LEVEL=VERBOSE bun start
 ```
 
 ## Architecture
@@ -128,6 +131,53 @@ The tool creates a `zen_nas_config.json` file to store:
 - Zen Browser profile paths
 - Selected sync categories
 - Sync history and machine ID
+
+## Debugging & Troubleshooting
+
+### **Verbose Logging**
+
+If you're experiencing sync issues, enable verbose logging to see detailed operation logs:
+
+**Method 1: Environment Variable**
+```bash
+# Windows (PowerShell)
+$env:ZEN_SYNC_LOG_LEVEL="VERBOSE"; bun start
+
+# Windows (CMD)
+set ZEN_SYNC_LOG_LEVEL=VERBOSE && bun start
+
+# macOS/Linux
+ZEN_SYNC_LOG_LEVEL=VERBOSE bun start
+```
+
+**Method 2: Runtime Toggle**
+- Select "Enable Verbose Logging" from the main menu
+- Enables detailed logging for the current session
+
+### **Log Levels**
+- `ERROR`: Only errors
+- `WARN`: Warnings and errors  
+- `INFO`: General information
+- `DEBUG`: Detailed debug information
+- `VERBOSE`: Maximum detail including file operations
+
+### **Common Issues**
+
+**"Selected backup not found"**
+- Enable verbose logging to see detailed backup folder analysis
+- Check if backup ID and folder name match (look for timestamp mismatches)
+- Verify NAS path is accessible
+- Smart fallback will search for similar timestamp patterns
+
+**Permission errors on cross-platform sync**
+- Ensure NAS supports the file permissions for your platform
+- Check if backup was created on a different OS
+
+**Upload/Download issues**
+- Use verbose logging to see detailed file operation progress
+- Check source and destination path existence
+- Verify category selection and exclusion patterns
+- Monitor file counts for each operation phase
 
 ## Metadata Tracking
 

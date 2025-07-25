@@ -17,6 +17,7 @@ import {
 } from "./src/ui.js";
 import { pathsAreSame } from "./src/utils.js";
 import { autoUpdateCheck, checkForUpdates, performUpdate } from "./src/updater.js";
+import { enableVerboseLogging, logger } from "./src/logger.js";
 
 async function interactive() {
   const config = new ZenNasConfig();
@@ -43,6 +44,7 @@ async function interactive() {
         "View Sync History",
         "Explain Path Structure",
         "Check for Updates",
+        "Enable Verbose Logging",
         "Exit",
       ],
     })) as { cmd: string };
@@ -229,6 +231,13 @@ async function interactive() {
         }
       }
       
+      await pause();
+    }
+
+    if (action === "Enable Verbose Logging") {
+      enableVerboseLogging();
+      console.log(chalk.green("✅ Verbose logging enabled for this session"));
+      console.log(chalk.gray("Use this to debug sync issues and see detailed operation logs"));
       await pause();
     }
   }
