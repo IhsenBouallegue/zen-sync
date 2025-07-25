@@ -1,0 +1,34 @@
+export interface ConfigData {
+  nas: { destination_path: string };
+  sync: {
+    zen_roaming_path: string;
+    zen_local_path: string;
+    sync_cache_data: boolean;
+    exclude: string[];
+    categories: string[];
+  };
+  state: {
+    lastUpload?: string;
+    lastDownload?: string;
+    lastSync?: string;
+    machineId?: string;
+  };
+}
+
+export interface SyncMetadata {
+  backupId: string;
+  machineId: string;
+  machineName: string;
+  platform: string;
+  timestamp: string;
+  syncType: "upload" | "download" | "sync";
+  categories: string[];
+  fileCount: number;
+  backupPath: string;
+}
+
+export interface ZenPaths {
+  roaming: string;
+  local: string;
+  hasSeparatePaths?: boolean;
+}
