@@ -33,6 +33,7 @@
     "ora": "^8.0.1"
   },
   "devDependencies": {
+    "@types/bun": "^1.2.19",
     "@types/ini": "^4.1.1",
     "@types/node": "^22.0.0",
     "typescript": "^5.5.4"
