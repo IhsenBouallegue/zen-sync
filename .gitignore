@@ -1,36 +1,52 @@
+# Dependencies
+node_modules/
+bun.lockb
+
+# Build outputs
+dist/
+*.exe
+*.deb
+*.rpm
+*.dmg
+*.app
+
+# Configuration and data files
 zen_nas_config.json
+.zen-sync-metadata.json
 
-# dependencies (bun install)
-node_modules
+# Logs
+*.log
+logs/
 
-# output
-out
-dist
-*.tgz
-
-# code coverage
-coverage
-*.lcov
-
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
+# Environment files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
 .env.local
+.env.production
 
-# caches
-.eslintcache
-.cache
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# TypeScript
 *.tsbuildinfo
 
-# IntelliJ based IDEs
-.idea
-
-# Finder (MacOS) folder config
-.DS_Store
+# Coverage and testing
+coverage/
+.nyc_output/

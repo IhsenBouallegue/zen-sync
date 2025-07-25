@@ -8,6 +8,12 @@
     "start": "bun run index.ts",
     "dev": "bun run --watch index.ts",
     "build": "bun build index.ts --outdir ./dist --target node",
+    "build:exe": "bun build index.ts --compile --outfile ./dist/zen-sync",
+    "build:exe:all": "mkdir -p dist && bun build index.ts --compile --outfile ./dist/zen-sync-linux-x64 --target bun-linux-x64 && bun build index.ts --compile --outfile ./dist/zen-sync-win32-x64 --target bun-windows-x64 && bun build index.ts --compile --outfile ./dist/zen-sync-darwin-x64 --target bun-darwin-x64 && bun build index.ts --compile --outfile ./dist/zen-sync-darwin-arm64 --target bun-darwin-arm64",
+    "build:exe:win": "bun build index.ts --compile --outfile ./dist/zen-sync-win32-x64 --target bun-windows-x64",
+    "build:exe:linux": "bun build index.ts --compile --outfile ./dist/zen-sync-linux-x64 --target bun-linux-x64",
+    "build:exe:macos": "bun build index.ts --compile --outfile ./dist/zen-sync-darwin-x64 --target bun-darwin-x64",
+    "build:exe:macos-arm": "bun build index.ts --compile --outfile ./dist/zen-sync-darwin-arm64 --target bun-darwin-arm64",
     "type-check": "bun run --bun tsc --noEmit"
   },
   "keywords": [

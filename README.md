@@ -84,9 +84,41 @@ bun run dev
 # Type checking
 bun run type-check
 
-# Build for distribution
+# Build JavaScript bundle
 bun run build
+
+# Build standalone executables
+bun run build:exe              # Current platform
+bun run build:exe:all          # All platforms at once
+bun run build:exe:win          # Windows x64
+bun run build:exe:linux        # Linux x64  
+bun run build:exe:macos        # macOS x64
+bun run build:exe:macos-arm    # macOS ARM64
 ```
+
+## CI/CD & Releases
+
+The project uses GitHub Actions with Bun's cross-compilation for automated building and releases:
+
+- **🔄 Continuous Integration**: Runs on every push and pull request
+- **🏗️ Cross-Platform Builds**: Uses Bun's `--target` flag to build for all platforms from Ubuntu
+- **📦 Automated Releases**: Creates release archives when a new tag is published
+- **✅ Quality Checks**: Type checking, file structure validation, and executable testing
+- **⚡ Fast Builds**: Single runner cross-compiles to all platforms using [Bun's built-in capabilities](https://bun.sh/docs/bundler/executables)
+
+### Build Artifacts
+
+Each push generates a single artifact containing executables for:
+- `zen-sync-win32-x64.exe` - Windows x64 executable
+- `zen-sync-darwin-x64` - macOS Intel executable  
+- `zen-sync-darwin-arm64` - macOS Apple Silicon executable
+- `zen-sync-linux-x64` - Linux x64 executable
+
+### Creating a Release
+
+1. Create and push a new tag: `git tag v1.0.0 && git push origin v1.0.0`
+2. Create a GitHub release from the tag
+3. GitHub Actions will automatically build and attach platform-specific archives
 
 ## Configuration
 
