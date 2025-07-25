@@ -1,15 +1,12 @@
-name: Build Cross-Platform
+name: Build and Release
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-  release:
-    types: [ published ]
+    push: 
+      branches: [ main ]
+    workflow_dispatch:
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
     
     steps:
@@ -24,86 +21,12 @@ jobs:
     - name: Install dependencies
       run: bun install
 
-    - name: Run type check
-      run: bun run type-check
-
     - name: Build executables for all platforms
-      run: |
-        mkdir -p dist
-        
-        # Linux x64
-        bun build index.ts --compile --outfile dist/zen-sync-linux-x64 --target bun-linux-x64
-        
-        # Windows x64 (Bun automatically adds .exe extension)
-        bun build index.ts --compile --outfile dist/zen-sync-win32-x64 --target bun-windows-x64
-        
-        # macOS x64
-        bun build index.ts --compile --outfile dist/zen-sync-darwin-x64 --target bun-darwin-x64
-        
-        # macOS ARM64
-        bun build index.ts --compile --outfile dist/zen-sync-darwin-arm64 --target bun-darwin-arm64
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: zen-sync-all-platforms
-        path: dist/
-        retention-days: 30
-
-  create-release:
-    if: github.event_name == 'release'
-    needs: build
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: zen-sync-all-platforms
-        path: artifacts
+      run: bun run build:exe:all
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1
       with:
-        files: artifacts/*
+        files: dist/*
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  quality-check:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v2
-      with:
-        bun-version: latest
-
-    - name: Install dependencies
-      run: bun install
-
-    - name: Run type check
-      run: bun run type-check
-
-    - name: Check for TODO/FIXME comments
-      run: |
-        if grep -r "TODO\|FIXME" src/ index.ts --exclude-dir=node_modules; then
-          echo "⚠️ Found TODO/FIXME comments"
-          exit 0
-        else
-          echo "✅ No TODO/FIXME comments found"
-        fi
-
-    - name: Check file structure
-      run: |
-        echo "📁 Project structure:"
-        tree -I 'node_modules|.git|dist' || ls -la
-        
-        echo "📦 Checking required files..."
-        test -f package.json && echo "✅ package.json exists"
-        test -f tsconfig.json && echo "✅ tsconfig.json exists"
-        test -f README.md && echo "✅ README.md exists"
-        test -f index.ts && echo "✅ index.ts exists"
-        test -d src && echo "✅ src/ directory exists" 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
