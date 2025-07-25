@@ -76,9 +76,13 @@ export async function getLatestBackupPath(
       return null;
     }
 
-    // Return the most recent upload
+    // Return the most recent upload - reconstruct full path from backup ID
     const latest = uploads[uploads.length - 1];
-    return latest?.backupPath || null;
+    const backupId = latest?.backupPath;
+    if (!backupId) return null;
+    
+    // Reconstruct full path from backup ID
+    return path.join(config.data.nas.destination_path, backupId);
   } catch (error) {
     return null;
   }

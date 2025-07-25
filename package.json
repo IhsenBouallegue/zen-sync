@@ -1,6 +1,6 @@
 {
   "name": "zen-sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cross-platform Zen Browser profile sync tool with NAS support",
   "type": "module",
   "main": "index.ts",

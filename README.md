@@ -136,7 +136,7 @@ Each sync operation saves metadata including:
 - Platform information
 - Sync type (upload/download/smart merge)
 - File count and categories synced
-- Timestamp and backup path
+- Timestamp and relative backup folder name
 
 This enables features like:
 - Viewing sync history

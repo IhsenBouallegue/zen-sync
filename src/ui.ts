@@ -139,8 +139,9 @@ export async function listAvailableBackups(config: ZenNasConfig) {
       const sizeInfo = `${entry.fileCount} files`;
       const categoriesInfo = `${entry.categories.length} categories`;
 
-      // Check if backup folder actually exists
-      const exists = fs.existsSync(entry.backupPath);
+      // Check if backup folder actually exists (reconstruct full path)
+      const fullBackupPath = path.join(base, entry.backupPath);
+      const exists = fs.existsSync(fullBackupPath);
       const status = exists ? chalk.green("✓") : chalk.red("✗ Missing");
 
       console.log(`${index + 1}. ${chalk.yellow(entry.backupId)} ${status}`);
@@ -151,7 +152,7 @@ export async function listAvailableBackups(config: ZenNasConfig) {
       console.log(
         `   Content: ${chalk.green(sizeInfo)} | ${chalk.blue(categoriesInfo)}`,
       );
-      console.log(`   Path: ${chalk.gray(entry.backupPath)}`);
+      console.log(`   Folder: ${chalk.gray(entry.backupPath)}`);
       console.log();
     });
   } catch (error) {

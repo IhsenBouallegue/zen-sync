@@ -24,7 +24,7 @@ export interface SyncMetadata {
   syncType: "upload" | "download" | "sync";
   categories: string[];
   fileCount: number;
-  backupPath: string;
+  backupPath: string; // Relative backup folder (e.g., "20241215-143052-hostname")
 }
 
 export interface ZenPaths {

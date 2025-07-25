@@ -101,7 +101,7 @@ export async function uploadToNas(config: ZenNasConfig) {
     config,
     "upload",
     totalFiles,
-    backupFolderPath,
+    backupId, // Store relative backup ID instead of full path
   );
   await saveMetadata(base, metadata);
 
@@ -149,7 +149,7 @@ export async function selectBackupForDownload(
 
     const choices = uploads.map((entry) => ({
       name: `${entry.backupId} - ${new Date(entry.timestamp).toLocaleString()} (${entry.machineName})`,
-      value: entry.backupPath,
+      value: entry.backupPath, // This is now just the backup ID
     }));
 
     const { selectedBackup } = (await enquirer.prompt({
@@ -171,11 +171,14 @@ export async function downloadFromNas(config: ZenNasConfig) {
   const base = config.data.nas.destination_path;
 
   // Select which backup to download
-  const selectedBackupPath = await selectBackupForDownload(config);
-  if (!selectedBackupPath) {
+  const selectedBackupId = await selectBackupForDownload(config);
+  if (!selectedBackupId) {
     console.log(chalk.red("No backup selected or available."));
     return;
   }
+
+  // Reconstruct full backup path from backup ID
+  const selectedBackupPath = path.join(base, selectedBackupId);
 
   // Check if selected backup exists
   const fs = require("node:fs");
@@ -255,7 +258,7 @@ export async function downloadFromNas(config: ZenNasConfig) {
     config,
     "download",
     totalFiles,
-    selectedBackupPath,
+    selectedBackupId, // Store relative backup ID instead of full path
   );
   await saveMetadata(base, metadata);
 
