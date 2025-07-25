@@ -47,10 +47,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: zen-sync-all-platforms
-        path: |
-          dist/zen-sync-*
-          README.md
-          LICENSE*
+        path: dist/
         retention-days: 30
 
   create-release:
@@ -65,39 +62,10 @@ jobs:
         name: zen-sync-all-platforms
         path: artifacts
 
-    - name: Create release archives
-      run: |
-        cd artifacts
-        
-        # Create Windows ZIP
-        mkdir -p zen-sync-win32-x64
-        cp zen-sync-win32-x64.exe README.md LICENSE zen-sync-win32-x64/
-        zip -r zen-sync-win32-x64.zip zen-sync-win32-x64/
-        
-        # Create Linux tar.gz
-        mkdir -p zen-sync-linux-x64
-        cp zen-sync-linux-x64 README.md LICENSE zen-sync-linux-x64/
-        tar -czf zen-sync-linux-x64.tar.gz zen-sync-linux-x64/
-        
-        # Create macOS x64 tar.gz
-        mkdir -p zen-sync-darwin-x64
-        cp zen-sync-darwin-x64 README.md LICENSE zen-sync-darwin-x64/
-        tar -czf zen-sync-darwin-x64.tar.gz zen-sync-darwin-x64/
-        
-        # Create macOS ARM64 tar.gz
-        mkdir -p zen-sync-darwin-arm64
-        cp zen-sync-darwin-arm64 README.md LICENSE zen-sync-darwin-arm64/
-        tar -czf zen-sync-darwin-arm64.tar.gz zen-sync-darwin-arm64/
-        
-        # List created archives
-        ls -la *.zip *.tar.gz
-
     - name: Upload release assets
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          artifacts/*.zip
-          artifacts/*.tar.gz
+        files: artifacts/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
