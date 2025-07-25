@@ -10,11 +10,9 @@ export async function createSyncMetadata(
   config: ZenNasConfig,
   syncType: "upload" | "download" | "sync",
   fileCount: number,
-  backupPath: string,
+  backupId: string, // This should be the backup ID, not path
 ): Promise<SyncMetadata> {
   await config.ensureMachineId();
-
-  const backupId = generateBackupId();
 
   return {
     backupId,
@@ -25,7 +23,6 @@ export async function createSyncMetadata(
     syncType,
     categories: config.data.sync.categories || Object.keys(SYNC_CATEGORIES),
     fileCount,
-    backupPath,
   };
 }
 
@@ -78,11 +75,10 @@ export async function getLatestBackupPath(
 
     // Return the most recent upload - reconstruct full path from backup ID
     const latest = uploads[uploads.length - 1];
-    const backupId = latest?.backupPath;
-    if (!backupId) return null;
+    if (!latest) return null;
     
     // Reconstruct full path from backup ID
-    return path.join(config.data.nas.destination_path, backupId);
+    return path.join(config.data.nas.destination_path, latest.backupId);
   } catch (error) {
     return null;
   }

@@ -8,22 +8,21 @@ import { downloadFromNas, smartSync, uploadToNas } from "./src/sync.js";
 import {
   chooseSyncCategories,
   displayHeader,
-  explainWindowsPaths,
   listAvailableBackups,
   listProfiles,
   manualPathConfig,
   pause,
   viewSyncHistory,
 } from "./src/ui.js";
-import { pathsAreSame } from "./src/utils.js";
-import { autoUpdateCheck, checkForUpdates, performUpdate } from "./src/updater.js";
+
+// import { autoUpdateCheck, checkForUpdates, performUpdate } from "./src/updater.js";
 import { enableVerboseLogging, logger } from "./src/logger.js";
 
 async function interactive() {
   const config = new ZenNasConfig();
 
   // Check for updates on startup (once per session)
-  await autoUpdateCheck();
+  // await autoUpdateCheck();
 
   while (true) {
     console.clear();
@@ -42,8 +41,6 @@ async function interactive() {
         "Sync (Smart Merge)",
         "List Available Backups",
         "View Sync History",
-        "Explain Path Structure",
-        "Check for Updates",
         "Enable Verbose Logging",
         "Exit",
       ],
@@ -64,11 +61,11 @@ async function interactive() {
       if (auto) {
         const paths = config.autoDetectPaths();
         console.log(chalk.cyan("Auto-detected paths:"));
-        console.log(`  Roaming: ${paths.roaming}`);
-        console.log(`  Local: ${paths.local}`);
+        
+        console.log(`  Profile Path: ${paths}`);
 
         console.log(chalk.cyan("\nValidating paths..."));
-        const isValid = await config.validateZenPath(paths.roaming);
+        const isValid = await config.validateZenPath(paths);
 
         if (isValid) {
           const { useDetected } = (await enquirer.prompt({
@@ -78,8 +75,7 @@ async function interactive() {
           })) as { useDetected: boolean };
 
           if (useDetected) {
-            config.data.sync.zen_roaming_path = paths.roaming;
-            config.data.sync.zen_local_path = paths.local;
+            config.data.sync.sync_path = paths;
           } else {
             await manualPathConfig(config);
           }
@@ -190,49 +186,27 @@ async function interactive() {
       await pause();
     }
 
-    if (action === "Explain Path Structure") {
-      explainWindowsPaths();
 
-      // Show current configuration
-      console.log(chalk.bold.cyan("📍 Your Current Configuration:"));
-      const roamingPath = config.data.sync.zen_roaming_path;
-      const localPath = config.data.sync.zen_local_path;
 
-      if (pathsAreSame(roamingPath, localPath)) {
-        console.log(
-          chalk.green(`   📱 Single Profile Location (${os.platform()})`),
-        );
-        console.log(chalk.gray(`      ${roamingPath || "Not configured"}`));
-        console.log(chalk.gray(`      ↳ Contains all user data and settings`));
-      } else {
-        console.log(chalk.green(`   📂 Roaming Data (Priority: HIGH)`));
-        console.log(chalk.gray(`      ${roamingPath || "Not configured"}`));
-        console.log(chalk.yellow(`   💾 Local Data (Priority: LOWER)`));
-        console.log(chalk.gray(`      ${localPath || "Not configured"}`));
-      }
+    // if (action === "Check for Updates") {
+    //   const hasUpdate = await checkForUpdates();
+    //   
+    //   if (hasUpdate) {
+    //     const { update } = (await enquirer.prompt({
+    //       type: "confirm",
+    //       name: "update",
+    //       message: "Would you like to update now?",
+    //     })) as { update: boolean };
 
-      await pause();
-    }
-
-    if (action === "Check for Updates") {
-      const hasUpdate = await checkForUpdates();
-      
-      if (hasUpdate) {
-        const { update } = (await enquirer.prompt({
-          type: "confirm",
-          name: "update",
-          message: "Would you like to update now?",
-        })) as { update: boolean };
-
-        if (update) {
-          await performUpdate();
-          // Exit after update since executable has been replaced
-          process.exit(0);
-        }
-      }
-      
-      await pause();
-    }
+    //     if (update) {
+    //       await performUpdate();
+    //       // Exit after update since executable has been replaced
+    //       process.exit(0);
+    //     }
+    //   }
+    //   
+    //   await pause();
+    // }
 
     if (action === "Enable Verbose Logging") {
       enableVerboseLogging();

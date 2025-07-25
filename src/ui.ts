@@ -7,7 +7,7 @@ import ini from "ini";
 import type { ZenNasConfig } from "./config.js";
 import { SYNC_CATEGORIES } from "./constants.js";
 import type { SyncMetadata } from "./types.js";
-import { pathsAreSame } from "./utils.js";
+
 
 export async function pause() {
   await enquirer.prompt({
@@ -18,23 +18,18 @@ export async function pause() {
 }
 
 export async function manualPathConfig(config: ZenNasConfig) {
-  const { roaming } = (await enquirer.prompt({
+  const currentPath = config.data.sync.sync_path || '';
+  
+  const { profilePath } = (await enquirer.prompt({
     type: "input",
-    name: "roaming",
-    message: "Zen Browser roaming path (where profiles.ini is located)",
-    initial: config.data.sync.zen_roaming_path,
-  })) as { roaming: string };
+    name: "profilePath",
+    message: "Zen Browser profile path (where profiles.ini is located)",
+    initial: currentPath,
+  })) as { profilePath: string };
 
-  const { local } = (await enquirer.prompt({
-    type: "input",
-    name: "local",
-    message: "Zen Browser local path",
-    initial: config.data.sync.zen_local_path,
-  })) as { local: string };
-
-  // Validate the manually entered roaming path
+  // Validate the manually entered path
   console.log(chalk.cyan("Validating manually entered path..."));
-  const isValid = await config.validateZenPath(roaming);
+  const isValid = await config.validateZenPath(profilePath);
 
   if (!isValid) {
     const { proceed } = (await enquirer.prompt({
@@ -48,12 +43,18 @@ export async function manualPathConfig(config: ZenNasConfig) {
     }
   }
 
-  config.data.sync.zen_roaming_path = roaming;
-  config.data.sync.zen_local_path = local;
+  config.data.sync.sync_path = profilePath;
 }
 
 export async function listProfiles(config: ZenNasConfig) {
-  const iniPath = path.join(config.data.sync.zen_roaming_path, "profiles.ini");
+  const syncPath = config.data.sync.sync_path;
+  
+  if (!syncPath) {
+    console.error(chalk.red("No Zen Browser path configured."));
+    return;
+  }
+  
+  const iniPath = path.join(syncPath, "profiles.ini");
   try {
     const content = await readFile(iniPath, "utf-8");
     const parsed = ini.parse(content);
@@ -78,37 +79,7 @@ export async function listProfiles(config: ZenNasConfig) {
   }
 }
 
-export function explainWindowsPaths(): void {
-  console.log(chalk.cyan("\n📖 Understanding Windows Dual-Path Structure:"));
-  console.log(
-    chalk.green("   📂 ROAMING DATA") + chalk.gray(" (%APPDATA%\\zen\\)"),
-  );
-  console.log(
-    chalk.gray("      ↳ User preferences, bookmarks, passwords, extensions"),
-  );
-  console.log(
-    chalk.gray("      ↳ Data that should sync across different computers"),
-  );
-  console.log(chalk.gray("      ↳ Priority: HIGH for our sync tool"));
-  console.log();
-  console.log(
-    chalk.yellow("   💾 LOCAL DATA") + chalk.gray(" (%LOCALAPPDATA%\\zen\\)"),
-  );
-  console.log(
-    chalk.gray(
-      "      ↳ Cache files, temporary data, hardware-specific settings",
-    ),
-  );
-  console.log(
-    chalk.gray("      ↳ Machine-specific data that usually shouldn't roam"),
-  );
-  console.log(chalk.gray("      ↳ Priority: LOWER for our sync tool"));
-  console.log();
-  console.log(
-    chalk.blue("   📱 macOS/Linux: Single location contains all data"),
-  );
-  console.log();
-}
+
 
 export async function listAvailableBackups(config: ZenNasConfig) {
   const base = config.data.nas.destination_path;
@@ -140,7 +111,7 @@ export async function listAvailableBackups(config: ZenNasConfig) {
       const categoriesInfo = `${entry.categories.length} categories`;
 
       // Check if backup folder actually exists (reconstruct full path)
-      const fullBackupPath = path.join(base, entry.backupPath);
+      const fullBackupPath = path.join(base, entry.backupId);
       const exists = fs.existsSync(fullBackupPath);
       const status = exists ? chalk.green("✓") : chalk.red("✗ Missing");
 
@@ -152,7 +123,7 @@ export async function listAvailableBackups(config: ZenNasConfig) {
       console.log(
         `   Content: ${chalk.green(sizeInfo)} | ${chalk.blue(categoriesInfo)}`,
       );
-      console.log(`   Folder: ${chalk.gray(entry.backupPath)}`);
+      console.log(`   Folder: ${chalk.gray(entry.backupId)}`);
       console.log();
     });
   } catch (error) {
@@ -200,7 +171,7 @@ export async function viewSyncHistory(config: ZenNasConfig) {
       console.log(
         `   Files: ${chalk.green(entry.fileCount)} | Categories: ${entry.categories.length}`,
       );
-      console.log(`   Path: ${chalk.gray(path.basename(entry.backupPath))}`);
+      console.log(`   Path: ${chalk.gray(path.basename(entry.backupId))}`);
       console.log();
     }
 
@@ -221,27 +192,14 @@ export function displayHeader(config: ZenNasConfig) {
   );
 
   // Show platform-specific info
-  const roamingPath = config.data.sync.zen_roaming_path;
-  const localPath = config.data.sync.zen_local_path;
-  if (pathsAreSame(roamingPath, localPath)) {
+  const syncPath = config.data.sync.sync_path;
+  if (syncPath) {
     console.log(
-      chalk.gray(`Platform: ${os.platform()} (single profile location)`),
+      chalk.gray(`Platform: ${os.platform()} (profile location)`),
     );
-    console.log(chalk.gray(`Profile: ${roamingPath || "Not configured"}`));
+    console.log(chalk.gray(`Profile: ${syncPath}`));
   } else {
-    console.log(
-      chalk.gray(`Platform: ${os.platform()} (Windows dual-path structure)`),
-    );
-    console.log(
-      chalk.gray(
-        `Roaming: ${roamingPath || "Not configured"} ${chalk.green("(Priority)")}`,
-      ),
-    );
-    console.log(
-      chalk.gray(
-        `Local: ${localPath || "Not configured"} ${chalk.yellow("(Cache)")}`,
-      ),
-    );
+    console.log(chalk.gray(`Platform: ${os.platform()} (not configured)`));
   }
 
   console.log(

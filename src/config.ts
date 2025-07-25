@@ -16,12 +16,16 @@ export class ZenNasConfig {
       const file = Bun.file(filePath);
       if (file.size > 0) {
         const raw = require("node:fs").readFileSync(filePath, "utf-8");
-        this.data = JSON.parse(raw);
+        const savedConfig = JSON.parse(raw);
+        // Merge with defaults to ensure all fields exist
+        this.data = { ...DEFAULT_CONFIG, ...savedConfig };
+        console.log(chalk.gray(`Config loaded: sync_path = "${this.data.sync.sync_path}"`));
       } else {
         throw new Error("File is empty");
       }
     } catch {
       this.data = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+      console.log(chalk.gray("No config file found, using defaults"));
       this.saveSync();
     }
   }
@@ -38,19 +42,19 @@ export class ZenNasConfig {
     return autoDetectPaths();
   }
 
-  async validateZenPath(roamingPath: string): Promise<boolean> {
+  async validateZenPath(syncPath: string): Promise<boolean> {
     try {
-      // Check if the roaming directory exists
+      // Check if the directory exists
       const fs = require("node:fs");
-      if (!fs.existsSync(roamingPath)) {
-        console.log(chalk.yellow(`Directory does not exist: ${roamingPath}`));
+      if (!fs.existsSync(syncPath)) {
+        console.log(chalk.yellow(`Directory does not exist: ${syncPath}`));
         return false;
       }
 
       // Check for profiles.ini (most important file)
-      const profilesIni = path.join(roamingPath, "profiles.ini");
+      const profilesIni = path.join(syncPath, "profiles.ini");
       if (!fs.existsSync(profilesIni)) {
-        console.log(chalk.yellow(`profiles.ini not found in: ${roamingPath}`));
+        console.log(chalk.yellow(`profiles.ini not found in: ${syncPath}`));
         return false;
       }
 

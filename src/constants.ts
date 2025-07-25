@@ -32,8 +32,7 @@ export const SYNC_CATEGORIES: Record<string, string[]> = {
 export const DEFAULT_CONFIG: ConfigData = {
   nas: { destination_path: "" },
   sync: {
-    zen_roaming_path: "",
-    zen_local_path: "",
+    sync_path: "",
     sync_cache_data: false,
     categories: Object.keys(SYNC_CATEGORIES), // All categories enabled by default
     exclude: [

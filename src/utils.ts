@@ -1,6 +1,6 @@
 import os from "node:os";
 import path from "node:path";
-import type { ZenPaths } from "./types.js";
+import crypto from "node:crypto";
 
 export function generateMachineId(): string {
   const crypto = require("node:crypto");
@@ -25,39 +25,23 @@ export function generateBackupId(): string {
   return `${timestamp}-${machineName}`;
 }
 
-export function pathsAreSame(path1: string, path2: string): boolean {
-  return path.resolve(path1) === path.resolve(path2);
-}
 
-export function autoDetectPaths(): ZenPaths {
+
+export function autoDetectPaths(): string {
   const home = os.homedir();
   switch (os.platform()) {
     case "win32": {
+      // Windows: use roaming path (where profiles.ini is located)
       const appData = process.env.APPDATA || "";
-      const localAppData = process.env.LOCALAPPDATA || "";
-      return {
-        roaming: path.join(appData, "zen"),
-        local: path.join(localAppData, "zen"),
-        hasSeparatePaths: true,
-      };
+      return path.join(appData, "zen");
     }
     case "darwin": {
       // macOS only has one location for Firefox-based browsers
-      const zenPath = path.join(home, "Library", "Application Support", "zen");
-      return {
-        roaming: zenPath,
-        local: zenPath,
-        hasSeparatePaths: false,
-      };
+      return path.join(home, "Library", "Application Support", "zen");
     }
     default: {
       // Linux typically uses one location
-      const zenPath = path.join(home, ".config", "zen-browser");
-      return {
-        roaming: zenPath,
-        local: zenPath,
-        hasSeparatePaths: false,
-      };
+      return path.join(home, ".config", "zen-browser");
     }
   }
 }

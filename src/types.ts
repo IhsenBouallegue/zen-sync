@@ -1,8 +1,7 @@
 export interface ConfigData {
   nas: { destination_path: string };
   sync: {
-    zen_roaming_path: string;
-    zen_local_path: string;
+    sync_path: string;
     sync_cache_data: boolean;
     exclude: string[];
     categories: string[];
@@ -24,11 +23,6 @@ export interface SyncMetadata {
   syncType: "upload" | "download" | "sync";
   categories: string[];
   fileCount: number;
-  backupPath: string; // Relative backup folder (e.g., "20241215-143052-hostname")
 }
 
-export interface ZenPaths {
-  roaming: string;
-  local: string;
-  hasSeparatePaths?: boolean;
-}
+
