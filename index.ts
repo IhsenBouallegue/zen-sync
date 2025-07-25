@@ -16,9 +16,13 @@ import {
   viewSyncHistory,
 } from "./src/ui.js";
 import { pathsAreSame } from "./src/utils.js";
+import { autoUpdateCheck, checkForUpdates, performUpdate } from "./src/updater.js";
 
 async function interactive() {
   const config = new ZenNasConfig();
+
+  // Check for updates on startup (once per session)
+  await autoUpdateCheck();
 
   while (true) {
     console.clear();
@@ -38,6 +42,7 @@ async function interactive() {
         "List Available Backups",
         "View Sync History",
         "Explain Path Structure",
+        "Check for Updates",
         "Exit",
       ],
     })) as { cmd: string };
@@ -204,6 +209,26 @@ async function interactive() {
         console.log(chalk.gray(`      ${localPath || "Not configured"}`));
       }
 
+      await pause();
+    }
+
+    if (action === "Check for Updates") {
+      const hasUpdate = await checkForUpdates();
+      
+      if (hasUpdate) {
+        const { update } = (await enquirer.prompt({
+          type: "confirm",
+          name: "update",
+          message: "Would you like to update now?",
+        })) as { update: boolean };
+
+        if (update) {
+          await performUpdate();
+          // Exit after update since executable has been replaced
+          process.exit(0);
+        }
+      }
+      
       await pause();
     }
   }

@@ -11,6 +11,7 @@ A cross-platform tool for syncing Zen Browser profiles with NAS storage, featuri
 - 📊 **Versioned Backups**: Each backup gets a unique timestamp and machine ID
 - 🎯 **Selective Sync**: Choose which data categories to sync (bookmarks, passwords, etc.)
 - 📱 **Platform Awareness**: Handles Windows dual-path vs macOS/Linux single-path structures
+- 🔄 **Auto-Update**: Built-in self-update mechanism checks for new releases
 
 ## Quick Start
 
@@ -142,6 +143,44 @@ This enables features like:
 - Viewing sync history
 - Selecting specific backups to restore
 - Cross-platform compatibility tracking
+
+## Auto-Update System
+
+The application includes a built-in update mechanism:
+
+### **Automatic Checks**
+- Checks for updates on startup (once per session)
+- Prompts you to update if a new version is available
+- Silent check that doesn't interrupt your workflow
+
+### **Manual Updates**
+- Use "Check for Updates" from the main menu
+- Shows current vs latest version information
+- Downloads and replaces the executable automatically
+
+### **Update Process**
+1. **Checks GitHub releases** for the latest version
+2. **Downloads** the correct executable for your platform
+3. **Backs up** the current executable
+4. **Replaces** the old version with the new one
+5. **Restores backup** if anything goes wrong
+
+### **Platform Support**
+- ✅ **Windows**: `zen-sync-win32-x64.exe`
+- ✅ **macOS Intel**: `zen-sync-darwin-x64`
+- ✅ **macOS Apple Silicon**: `zen-sync-darwin-arm64`
+- ✅ **Linux**: `zen-sync-linux-x64`
+
+### **Configuration**
+Update the repository URLs in `package.json`:
+```json
+{
+  "repository": {
+    "url": "https://github.com/YOUR_USERNAME/zen-sync.git"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/zen-sync"
+}
+```
 
 ## License
 
